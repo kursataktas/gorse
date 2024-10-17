@@ -256,6 +256,7 @@ func (s *RestServer) CreateWebService() {
 		Metadata(restfulspec.KeyOpenAPITags, []string{ItemsAPITag}).
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("item-id", "ID of the item to modify").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of modified item").DataType("string")).
 		Reads(data.ItemPatch{}).
 		Returns(http.StatusOK, "OK", Success{}).
 		Writes(Success{}))
@@ -266,6 +267,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("cursor", "Cursor for the next page").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", ItemIterator{}).
 		Writes(ItemIterator{}))
 	// Get item
@@ -274,6 +276,7 @@ func (s *RestServer) CreateWebService() {
 		Metadata(restfulspec.KeyOpenAPITags, []string{ItemsAPITag}).
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("item-id", "ID of the item to get.").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", data.Item{}).
 		Writes(data.Item{}))
 	// Insert items
@@ -290,6 +293,7 @@ func (s *RestServer) CreateWebService() {
 		Metadata(restfulspec.KeyOpenAPITags, []string{ItemsAPITag}).
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("item-id", "ID of the item to delete").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of deleted items").DataType("string")).
 		Returns(http.StatusOK, "OK", Success{}).
 		Writes(Success{}))
 	// Insert category
@@ -299,6 +303,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("item-id", "ID of the item to insert category").DataType("string")).
 		Param(ws.PathParameter("category", "Category to insert").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of modified item").DataType("string")).
 		Returns(http.StatusOK, "OK", Success{}).
 		Writes(Success{}))
 	// Delete category
@@ -308,6 +313,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("item-id", "ID of the item to delete categoryßßß").DataType("string")).
 		Param(ws.PathParameter("category", "Category to delete").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of modified item").DataType("string")).
 		Returns(http.StatusOK, "OK", Success{}).
 		Writes(Success{}))
 	// Insert feedback
@@ -332,6 +338,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.QueryParameter("cursor", "Cursor for the next page").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned feedback").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", FeedbackIterator{}).
 		Writes(FeedbackIterator{}))
 	ws.Route(ws.GET("/feedback/{user-id}/{item-id}").To(s.getUserItemFeedback).
@@ -340,6 +347,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("user-id", "User ID of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("item-id", "Item ID of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", []data.Feedback{}).
 		Writes([]data.Feedback{}))
 	ws.Route(ws.DELETE("/feedback/{user-id}/{item-id}").To(s.deleteUserItemFeedback).
@@ -348,6 +356,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("user-id", "User ID of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("item-id", "Item ID of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of deleted feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", []data.Feedback{}).
 		Writes([]data.Feedback{}))
 	ws.Route(ws.GET("/feedback/{feedback-type}").To(s.getTypedFeedback).
@@ -357,6 +366,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("feedback-type", "Type of returned feedbacks").DataType("string")).
 		Param(ws.QueryParameter("cursor", "Cursor for the next page").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned feedbacks").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", FeedbackIterator{}).
 		Writes(FeedbackIterator{}))
 	ws.Route(ws.GET("/feedback/{feedback-type}/{user-id}/{item-id}").To(s.getTypedUserItemFeedback).
@@ -366,6 +376,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("feedback-type", "Type of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("user-id", "User ID of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("item-id", "Item ID of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", data.Feedback{}).
 		Writes(data.Feedback{}))
 	ws.Route(ws.DELETE("/feedback/{feedback-type}/{user-id}/{item-id}").To(s.deleteTypedUserItemFeedback).
@@ -375,6 +386,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("feedback-type", "Type of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("user-id", "User ID of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("item-id", "Item ID of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of deleted feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", data.Feedback{}).
 		Writes(data.Feedback{}))
 	// Get feedback by user id
@@ -384,6 +396,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("user-id", "User ID of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("feedback-type", "Type of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", []data.Feedback{}).
 		Writes([]data.Feedback{}))
 	ws.Route(ws.GET("/user/{user-id}/feedback").To(s.getFeedbackByUser).
@@ -391,6 +404,7 @@ func (s *RestServer) CreateWebService() {
 		Metadata(restfulspec.KeyOpenAPITags, []string{FeedbackAPITag}).
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("user-id", "User ID of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", []data.Feedback{}).
 		Writes([]data.Feedback{}))
 	// Get feedback by item-id
@@ -400,6 +414,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("item-id", "Item ID of returned feedbacks").DataType("string")).
 		Param(ws.PathParameter("feedback-type", "Type of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", []data.Feedback{}).
 		Writes([]data.Feedback{}))
 	ws.Route(ws.GET("/item/{item-id}/feedback/").To(s.getFeedbackByItem).
@@ -407,6 +422,7 @@ func (s *RestServer) CreateWebService() {
 		Metadata(restfulspec.KeyOpenAPITags, []string{FeedbackAPITag}).
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.PathParameter("item-id", "Item ID of returned feedbacks").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned feedback's item").DataType("string")).
 		Returns(http.StatusOK, "OK", []data.Feedback{}).
 		Writes([]data.Feedback{}))
 
@@ -418,6 +434,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("user-id", "ID of the user to get recommendation").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of recommended items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	ws.Route(ws.GET("/intermediate/recommend/{user-id}/{category}").To(s.getCollaborative).
@@ -428,6 +445,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("category", "Category of returned items.").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of recommended items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 
@@ -439,6 +457,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.QueryParameter("n", "Number of returned recommendations").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned recommendations").DataType("integer")).
 		Param(ws.QueryParameter("user-id", "Remove read items of a user").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	ws.Route(ws.GET("/popular/{category}").To(s.getPopular).
@@ -449,6 +468,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
 		Param(ws.QueryParameter("user-id", "Remove read items of a user").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	// Get latest items
@@ -459,6 +479,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
 		Param(ws.QueryParameter("user-id", "Remove read items of a user").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	ws.Route(ws.GET("/latest/{category}").To(s.getLatest).
@@ -469,6 +490,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
 		Param(ws.QueryParameter("user-id", "Remove read items of a user").DataType("string")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	// Get neighbors
@@ -479,6 +501,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("item-id", "ID of the item to get neighbors").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of recommended items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	ws.Route(ws.GET("/item/{item-id}/neighbors/{category}").To(s.getItemNeighbors).
@@ -489,6 +512,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("category", "Category of returned items").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	ws.Route(ws.GET("/user/{user-id}/neighbors/").To(s.getUserNeighbors).
@@ -498,6 +522,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("user-id", "ID of the user to get neighbors").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned users").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned users").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
 	ws.Route(ws.GET("/recommend/{user-id}").To(s.getRecommend).
@@ -510,6 +535,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.QueryParameter("write-back-delay", "Timestamp delay of write back feedback (format 0h0m0s)").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []string{}).
 		Writes([]string{}))
 	ws.Route(ws.GET("/recommend/{user-id}/{category}").To(s.getRecommend).
@@ -522,6 +548,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.QueryParameter("write-back-delay", "Timestamp delay of write back feedback (format 0h0m0s)").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Returns(http.StatusOK, "OK", []string{}).
 		Writes([]string{}))
 	ws.Route(ws.POST("/session/recommend").To(s.sessionRecommend).
@@ -530,6 +557,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.HeaderParameter("X-API-Key", "API key").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Reads([]Feedback{}).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
@@ -540,6 +568,7 @@ func (s *RestServer) CreateWebService() {
 		Param(ws.PathParameter("category", "Category of the returned items").DataType("string")).
 		Param(ws.QueryParameter("n", "Number of returned items").DataType("integer")).
 		Param(ws.QueryParameter("offset", "Offset of returned items").DataType("integer")).
+		Param(ws.QueryParameter("namespace", "Namespace of returned items").DataType("string")).
 		Reads([]Feedback{}).
 		Returns(http.StatusOK, "OK", []cache.Score{}).
 		Writes([]cache.Score{}))
