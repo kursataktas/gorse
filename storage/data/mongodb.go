@@ -262,7 +262,7 @@ func (db *MongoDB) DeleteItem(ctx context.Context, namespace, itemId string) err
 	return errors.Trace(err)
 }
 
-// GetItem returns a item from MongoDB.
+// GetItem returns an item from MongoDB.
 func (db *MongoDB) GetItem(ctx context.Context, namespace string, itemId string) (item Item, err error) {
 	c := db.client.Database(db.dbName).Collection(db.ItemsTable())
 	r := c.FindOne(ctx, bson.M{
@@ -285,9 +285,9 @@ func (db *MongoDB) GetItems(ctx context.Context, cursor string, n int, timeLimit
 	if err != nil {
 		return "", nil, errors.Trace(err)
 	}
-	var uid ItemUID
+	var pk ItemKey
 	if len(buf) > 0 {
-		if err = json.Unmarshal(buf, &uid); err != nil {
+		if err = json.Unmarshal(buf, &pk); err != nil {
 			return "", nil, errors.Trace(err)
 		}
 	}
@@ -301,8 +301,8 @@ func (db *MongoDB) GetItems(ctx context.Context, cursor string, n int, timeLimit
 	})
 	filter := bson.M{
 		"$or": []bson.M{
-			{"namespace": bson.M{"$gt": uid.Namespace}},
-			{"namespace": bson.M{"$eq": uid.Namespace}, "itemid": bson.M{"$gt": uid.ItemId}},
+			{"namespace": bson.M{"$gt": pk.Namespace}},
+			{"namespace": bson.M{"$eq": pk.Namespace}, "itemid": bson.M{"$gt": pk.ItemId}},
 		},
 	}
 	if timeLimit != nil {
@@ -325,7 +325,7 @@ func (db *MongoDB) GetItems(ctx context.Context, cursor string, n int, timeLimit
 
 	// Encode cursor
 	if len(items) == n {
-		data, err := json.Marshal(items[n-1].ItemUID())
+		data, err := json.Marshal(items[n-1].Key())
 		if err != nil {
 			return "", nil, err
 		}
@@ -344,7 +344,6 @@ func (db *MongoDB) GetItemStream(ctx context.Context, batchSize int, timeLimit *
 		defer close(itemChan)
 		defer close(errChan)
 		// send query
-		ctx := context.Background()
 		c := db.client.Database(db.dbName).Collection(db.ItemsTable())
 		opt := options.Find()
 		filter := bson.M{}
@@ -513,7 +512,6 @@ func (db *MongoDB) GetUserStream(ctx context.Context, batchSize int) (chan []Use
 		defer close(userChan)
 		defer close(errChan)
 		// send query
-		ctx := context.Background()
 		c := db.client.Database(db.dbName).Collection(db.UsersTable())
 		opt := options.Find()
 		r, err := c.Find(ctx, bson.M{}, opt)
@@ -583,10 +581,10 @@ func (db *MongoDB) BatchInsertFeedback(ctx context.Context, feedback []Feedback,
 	}
 	// collect users and items
 	users := mapset.NewSet[string]()
-	items := mapset.NewSet[ItemUID]()
+	items := mapset.NewSet[ItemKey]()
 	for _, v := range feedback {
 		users.Add(v.UserId)
-		items.Add(v.ItemUID())
+		items.Add(v.ItemKey())
 	}
 	// insert users
 	userList := users.ToSlice()
@@ -652,7 +650,7 @@ func (db *MongoDB) BatchInsertFeedback(ctx context.Context, feedback []Feedback,
 	c := db.client.Database(db.dbName).Collection(db.FeedbackTable())
 	var models []mongo.WriteModel
 	for _, f := range feedback {
-		if users.Contains(f.UserId) && items.Contains(f.ItemUID()) {
+		if users.Contains(f.UserId) && items.Contains(f.ItemKey()) {
 			model := mongo.NewUpdateOneModel().
 				SetUpsert(true).
 				SetFilter(bson.M{
@@ -738,7 +736,6 @@ func (db *MongoDB) GetFeedbackStream(ctx context.Context, batchSize int, scanOpt
 		defer close(feedbackChan)
 		defer close(errChan)
 		// send query
-		ctx := context.Background()
 		c := db.client.Database(db.dbName).Collection(db.FeedbackTable())
 		opt := options.Find()
 		filter := make(bson.M)

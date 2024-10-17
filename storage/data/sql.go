@@ -116,7 +116,7 @@ func (d *SQLDatabase) Init() error {
 			Comment   string   `gorm:"column:comment;type:text;not null"`
 		}
 		type Feedback struct {
-			Namespace    string    `gorm:"column:namespace;type:varchar(128);not null;primaryKey"`
+			Namespace    string    `gorm:"column:namespace;type:varchar(128);not null;primaryKey;index:item_id"`
 			FeedbackType string    `gorm:"column:feedback_type;type:varchar(128);not null;primaryKey"`
 			UserId       string    `gorm:"column:user_id;type:varchar(256);not null;primaryKey;index:user_id"`
 			ItemId       string    `gorm:"column:item_id;type:varchar(256);not null;primaryKey;index:item_id"`
@@ -145,7 +145,7 @@ func (d *SQLDatabase) Init() error {
 			Comment   string `gorm:"column:comment;type:text;not null;default:''"`
 		}
 		type Feedback struct {
-			Namespace    string    `gorm:"column:namespace;type:varchar(128) not null;primaryKey"`
+			Namespace    string    `gorm:"column:namespace;type:varchar(128) not null;primaryKey;index:item_id_index"`
 			FeedbackType string    `gorm:"column:feedback_type;type:varchar(128);not null;primaryKey"`
 			UserId       string    `gorm:"column:user_id;type:varchar(256);not null;primaryKey;index:user_id_index"`
 			ItemId       string    `gorm:"column:item_id;type:varchar(256);not null;primaryKey;index:item_id_index"`
@@ -174,7 +174,7 @@ func (d *SQLDatabase) Init() error {
 			Comment   string `gorm:"column:comment;type:text;not null;default:''"`
 		}
 		type Feedback struct {
-			Namespace    string `gorm:"column:namespace;type:varchar(128) not null;primaryKey"`
+			Namespace    string `gorm:"column:namespace;type:varchar(128) not null;primaryKey;index:item_id_index"`
 			FeedbackType string `gorm:"column:feedback_type;type:varchar(128);not null;primaryKey"`
 			UserId       string `gorm:"column:user_id;type:varchar(256);not null;primaryKey;index:user_id_index"`
 			ItemId       string `gorm:"column:item_id;type:varchar(256);not null;primaryKey;index:item_id_index"`
@@ -215,10 +215,10 @@ func (d *SQLDatabase) BatchInsertItems(ctx context.Context, items []Item) error 
 		return nil
 	}
 	rows := make([]SQLItem, 0, len(items))
-	memo := mapset.NewSet[ItemUID]()
+	memo := mapset.NewSet[ItemKey]()
 	for _, item := range items {
-		if !memo.Contains(item.ItemUID()) {
-			memo.Add(item.ItemUID())
+		if !memo.Contains(item.Key()) {
+			memo.Add(item.Key())
 			row := NewSQLItem(item)
 			if d.driver == SQLite {
 				row.Timestamp = row.Timestamp.In(time.UTC)
@@ -338,17 +338,17 @@ func (d *SQLDatabase) GetItems(ctx context.Context, cursor string, n int, timeLi
 	if err != nil {
 		return "", nil, errors.Trace(err)
 	}
-	var uid *ItemUID
+	var pk *ItemKey
 	if len(buf) > 0 {
-		if err = json.Unmarshal(buf, &uid); err != nil {
+		if err = json.Unmarshal(buf, &pk); err != nil {
 			return "", nil, errors.Trace(err)
 		}
 	}
 
 	tx := d.gormDB.WithContext(ctx).Table(d.ItemsTable()).
 		Select("namespace, item_id, is_hidden, categories, time_stamp, labels, comment")
-	if uid != nil {
-		tx.Where("(namespace, item_id) >= (?,?)", uid.Namespace, uid.ItemId)
+	if pk != nil {
+		tx.Where("(namespace, item_id) >= (?,?)", pk.Namespace, pk.ItemId)
 	}
 	if timeLimit != nil {
 		tx.Where("time_stamp >= ?", *timeLimit)
@@ -368,7 +368,7 @@ func (d *SQLDatabase) GetItems(ctx context.Context, cursor string, n int, timeLi
 	}
 	if len(items) == n+1 {
 		// Encode cursor
-		data, err := json.Marshal(items[len(items)-1].ItemUID())
+		data, err := json.Marshal(items[len(items)-1].Key())
 		if err != nil {
 			return "", nil, errors.Trace(err)
 		}
@@ -626,10 +626,10 @@ func (d *SQLDatabase) BatchInsertFeedback(ctx context.Context, feedback []Feedba
 	}
 	// collect users and items
 	users := mapset.NewSet[string]()
-	items := mapset.NewSet[ItemUID]()
+	items := mapset.NewSet[ItemKey]()
 	for _, v := range feedback {
 		users.Add(v.UserId)
-		items.Add(v.ItemUID())
+		items.Add(v.ItemKey())
 	}
 	// insert users
 	if insertUser {
@@ -669,7 +669,7 @@ func (d *SQLDatabase) BatchInsertFeedback(ctx context.Context, feedback []Feedba
 				{Name: "item_id"},
 			},
 			DoNothing: true,
-		}).Create(lo.Map(itemList, func(uid ItemUID, _ int) SQLItem {
+		}).Create(lo.Map(itemList, func(uid ItemKey, _ int) SQLItem {
 			return SQLItem{
 				Namespace:  uid.Namespace,
 				ItemId:     uid.ItemId,
@@ -699,7 +699,7 @@ func (d *SQLDatabase) BatchInsertFeedback(ctx context.Context, feedback []Feedba
 	rows := make([]Feedback, 0, len(feedback))
 	memo := mapset.NewSet[FeedbackKey]()
 	for _, f := range feedback {
-		if users.Contains(f.UserId) && items.Contains(f.ItemUID()) {
+		if users.Contains(f.UserId) && items.Contains(f.ItemKey()) {
 			if !memo.Contains(f.FeedbackKey) {
 				memo.Add(f.FeedbackKey)
 				if d.driver == SQLite {

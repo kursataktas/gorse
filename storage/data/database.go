@@ -108,6 +108,11 @@ type Item struct {
 	Comment    string    `mapsstructure:"comment"`
 }
 
+type ItemKey struct {
+	Namespace string
+	ItemId    string
+}
+
 // ItemPatch is the modification on an item.
 type ItemPatch struct {
 	IsHidden   *bool
@@ -117,16 +122,17 @@ type ItemPatch struct {
 	Comment    *string
 }
 
-type ItemUID struct {
-	Namespace string
-	ItemId    string
-}
-
-func (item *Item) ItemUID() ItemUID {
-	return ItemUID{
+// Key returns the primary key of an item in the database.
+func (item *Item) Key() ItemKey {
+	return ItemKey{
 		Namespace: item.Namespace,
 		ItemId:    item.ItemId,
 	}
+}
+
+// UID returns the unique identifier of an item.
+func (item *Item) UID() string {
+	return item.Namespace + "::" + item.ItemId
 }
 
 // User stores meta data about user.
@@ -152,10 +158,10 @@ type FeedbackKey struct {
 	ItemId       string `gorm:"column:item_id" mapstructure:"item_id"`
 }
 
-func (key *FeedbackKey) ItemUID() ItemUID {
-	return ItemUID{
-		Namespace: key.Namespace,
-		ItemId:    key.ItemId,
+func (k *FeedbackKey) ItemKey() ItemKey {
+	return ItemKey{
+		Namespace: k.Namespace,
+		ItemId:    k.ItemId,
 	}
 }
 
