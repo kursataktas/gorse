@@ -102,7 +102,7 @@ func (NoDatabase) UpdateScores(context.Context, string, []string, string, string
 	return ErrNoDatabase
 }
 
-func (NoDatabase) DeleteScores(context.Context, string, []string, ScoreCondition) error {
+func (NoDatabase) DeleteScores(context.Context, string, []string, string, ScoreCondition) error {
 	return ErrNoDatabase
 }
 

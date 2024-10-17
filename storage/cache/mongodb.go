@@ -403,25 +403,23 @@ func (m MongoDB) UpdateScores(ctx context.Context, collectionNamespace string, c
 	return errors.Trace(err)
 }
 
-func (m MongoDB) DeleteScores(ctx context.Context, collectionNamespace string, collections []string, condition ScoreCondition) error {
-	if err := condition.Check(); err != nil {
+func (m MongoDB) DeleteScores(ctx context.Context, collectionNamespace string, collectionNames []string, scoreNamespace string, scoreCondition ScoreCondition) error {
+	if err := scoreCondition.Check(); err != nil {
 		return errors.Trace(err)
 	}
 	filter := bson.M{
 		"collection_ns": collectionNamespace,
-		"collection":    bson.M{"$in": collections},
+		"collection":    bson.M{"$in": collectionNames},
+		"namespace":     scoreNamespace,
 	}
-	if condition.Namespace != nil {
-		filter["namespace"] = condition.Namespace
+	if scoreCondition.Subset != nil {
+		filter["subset"] = scoreCondition.Subset
 	}
-	if condition.Subset != nil {
-		filter["subset"] = condition.Subset
+	if scoreCondition.Id != nil {
+		filter["id"] = scoreCondition.Id
 	}
-	if condition.Id != nil {
-		filter["id"] = condition.Id
-	}
-	if condition.Before != nil {
-		filter["timestamp"] = bson.M{"$lt": condition.Before}
+	if scoreCondition.Before != nil {
+		filter["timestamp"] = bson.M{"$lt": scoreCondition.Before}
 	}
 	_, err := m.client.Database(m.dbName).Collection(m.ScoresTable()).DeleteMany(ctx, filter)
 	return errors.Trace(err)
