@@ -525,7 +525,7 @@ func (db *SQLDatabase) UpdateScores(ctx context.Context, collectionNamespace str
 	return tx.Error
 }
 
-func (db *SQLDatabase) DeleteScores(ctx context.Context, collectionNamespace string, collections []string, condition ScoreCondition) error {
+func (db *SQLDatabase) DeleteScores(ctx context.Context, collectionNamespace string, collectionNames []string, scoreNamespace string, scoreCondition ScoreCondition) error {
 	if err := condition.Check(); err != nil {
 		return errors.Trace(err)
 	}

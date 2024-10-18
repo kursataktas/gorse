@@ -1609,7 +1609,7 @@ func (s *RestServer) deleteItem(request *restful.Request, response *restful.Resp
 		return
 	}
 	// delete item from cache
-	if err := s.CacheClient.DeleteScores(ctx, "", cache.ItemCache, cache.ScoreCondition{Id: &itemId}); err != nil {
+	if err := s.CacheClient.DeleteScores(ctx, "", cache.ItemCache, "", cache.ScoreCondition{Id: &itemId}); err != nil {
 		InternalServerError(response, err)
 		return
 	}

@@ -91,11 +91,11 @@ func (s *MasterTestSuite) TestFindItemNeighborsBruteForce() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err := s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 	// similar items in category (common users)
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "9", "", []string{"*"}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "1"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "1"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (common labels)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyItemTime, "8"), time.Now()))
@@ -105,11 +105,11 @@ func (s *MasterTestSuite) TestFindItemNeighborsBruteForce() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 	// similar items in category (common labels)
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "8", "", []string{"*"}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "6"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "6"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (auto)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyItemTime, "8"), time.Now()))
@@ -121,10 +121,10 @@ func (s *MasterTestSuite) TestFindItemNeighborsBruteForce() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 }
 
 func (s *MasterTestSuite) TestFindItemNeighborsIVF() {
@@ -196,11 +196,11 @@ func (s *MasterTestSuite) TestFindItemNeighborsIVF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err := s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 	// similar items in category (common users)
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "9", "", []string{"*"}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "1"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "1"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (common labels)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyItemTime, "8"), time.Now()))
@@ -210,11 +210,11 @@ func (s *MasterTestSuite) TestFindItemNeighborsIVF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 	// similar items in category (common labels)
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "8", "", []string{"*"}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "6"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "6"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (auto)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyItemTime, "8"), time.Now()))
@@ -226,10 +226,10 @@ func (s *MasterTestSuite) TestFindItemNeighborsIVF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 }
 
 func (s *MasterTestSuite) TestFindItemNeighborsIVF_ZeroIDF() {
@@ -263,7 +263,7 @@ func (s *MasterTestSuite) TestFindItemNeighborsIVF_ZeroIDF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err := s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "0", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"1"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"1"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (common labels)
 	s.Config.Recommend.ItemNeighbors.NeighborType = config.NeighborTypeSimilar
@@ -271,7 +271,7 @@ func (s *MasterTestSuite) TestFindItemNeighborsIVF_ZeroIDF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.ItemNeighbors, "0", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"1"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"1"}, cache.ConvertScoresToStringSlice(similar))
 }
 
 func (s *MasterTestSuite) TestFindUserNeighborsBruteForce() {
@@ -323,7 +323,7 @@ func (s *MasterTestSuite) TestFindUserNeighborsBruteForce() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err := s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (common labels)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyUserTime, "8"), time.Now()))
@@ -333,7 +333,7 @@ func (s *MasterTestSuite) TestFindUserNeighborsBruteForce() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (auto)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyUserTime, "8"), time.Now()))
@@ -345,10 +345,10 @@ func (s *MasterTestSuite) TestFindUserNeighborsBruteForce() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 }
 
 func (s *MasterTestSuite) TestFindUserNeighborsIVF() {
@@ -403,7 +403,7 @@ func (s *MasterTestSuite) TestFindUserNeighborsIVF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err := s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (common labels)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyUserTime, "8"), time.Now()))
@@ -413,7 +413,7 @@ func (s *MasterTestSuite) TestFindUserNeighborsIVF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar items (auto)
 	err = s.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastModifyUserTime, "8"), time.Now()))
@@ -425,10 +425,10 @@ func (s *MasterTestSuite) TestFindUserNeighborsIVF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "8", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"0", "2", "4"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"0", "2", "4"}, cache.ConvertScoresToStringSlice(similar))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "9", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"7", "5", "3"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"7", "5", "3"}, cache.ConvertScoresToStringSlice(similar))
 }
 
 func (s *MasterTestSuite) TestFindUserNeighborsIVF_ZeroIDF() {
@@ -462,7 +462,7 @@ func (s *MasterTestSuite) TestFindUserNeighborsIVF_ZeroIDF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err := s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "0", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"1"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"1"}, cache.ConvertScoresToStringSlice(similar))
 
 	// similar users (common labels)
 	s.Config.Recommend.UserNeighbors.NeighborType = config.NeighborTypeSimilar
@@ -470,7 +470,7 @@ func (s *MasterTestSuite) TestFindUserNeighborsIVF_ZeroIDF() {
 	s.NoError(neighborTask.run(context.Background(), nil))
 	similar, err = s.CacheClient.SearchScores(ctx, "", cache.UserNeighbors, "0", "", []string{""}, 0, 100)
 	s.NoError(err)
-	s.Equal([]string{"1"}, cache.ConvertDocumentsToValues(similar))
+	s.Equal([]string{"1"}, cache.ConvertScoresToStringSlice(similar))
 }
 
 func (s *MasterTestSuite) TestLoadDataFromDatabase() {

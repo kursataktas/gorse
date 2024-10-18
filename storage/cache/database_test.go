@@ -315,17 +315,17 @@ func (suite *baseTestSuite) TestScores() {
 	suite.Equal([]Score{{Id: "4", Score: 4, Categories: []string{""}, Timestamp: ts}}, documents)
 
 	// delete nothing
-	err = suite.DeleteScores(ctx, "ns1", []string{"a"}, ScoreCondition{})
+	err = suite.DeleteScores(ctx, "ns1", []string{"a"}, "", ScoreCondition{})
 	suite.ErrorIs(err, errors.NotValid)
 	// delete by value
-	err = suite.DeleteScores(ctx, "ns1", []string{"a"}, ScoreCondition{Id: proto.String("5")})
+	err = suite.DeleteScores(ctx, "ns1", []string{"a"}, "", ScoreCondition{Id: proto.String("5")})
 	suite.NoError(err)
 	documents, err = suite.SearchScores(ctx, "ns1", "a", "", "", []string{"b"}, 0, 1)
 	suite.NoError(err)
 	suite.Len(documents, 1)
 	suite.Equal("3", documents[0].Id)
 	// delete by timestamp
-	err = suite.DeleteScores(ctx, "ns1", []string{"a"}, ScoreCondition{Before: lo.ToPtr(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))})
+	err = suite.DeleteScores(ctx, "ns1", []string{"a"}, "", ScoreCondition{Before: lo.ToPtr(time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC))})
 	suite.NoError(err)
 	documents, err = suite.SearchScores(ctx, "ns1", "a", "", "", []string{"b"}, 0, 1)
 	suite.NoError(err)
@@ -422,7 +422,7 @@ func (suite *baseTestSuite) TestSubsetScores() {
 	suite.Equal("2", documents[0].Id)
 
 	// delete by value
-	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, ScoreCondition{Id: proto.String("3")})
+	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, "", ScoreCondition{Id: proto.String("3")})
 	suite.NoError(err)
 	documents, err = suite.SearchScores(ctx, "ns1", "a", "a", "", []string{"b"}, 0, 1)
 	suite.NoError(err)
@@ -434,7 +434,7 @@ func (suite *baseTestSuite) TestSubsetScores() {
 	suite.Equal("2", documents[0].Id)
 
 	// delete in subset
-	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, ScoreCondition{
+	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, "", ScoreCondition{
 		Subset: proto.String("a"),
 		Id:     proto.String("2"),
 	})
@@ -519,7 +519,7 @@ func (suite *baseTestSuite) TestNamespaceScore() {
 	suite.Empty(documents)
 
 	// delete by value
-	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, ScoreCondition{Namespace: proto.String("ns2"), Id: proto.String("3")})
+	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, "", ScoreCondition{Namespace: proto.String("ns2"), Id: proto.String("3")})
 	suite.NoError(err)
 	documents, err = suite.SearchScores(ctx, "ns1", "a", "", "ns2", []string{"b"}, 0, 1)
 	suite.NoError(err)
@@ -531,7 +531,7 @@ func (suite *baseTestSuite) TestNamespaceScore() {
 	suite.Equal("3", documents[0].Id)
 
 	// delete in subset
-	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, ScoreCondition{
+	err = suite.DeleteScores(ctx, "ns1", []string{"a", "b"}, "", ScoreCondition{
 		Namespace: proto.String("ns2"),
 		Id:        proto.String("2"),
 	})

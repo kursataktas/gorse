@@ -366,7 +366,7 @@ func (r *Redis) UpdateScores(ctx context.Context, collectionNamespace string, co
 	return nil
 }
 
-func (r *Redis) DeleteScores(ctx context.Context, collectionNamespace string, collections []string, condition ScoreCondition) error {
+func (r *Redis) DeleteScores(ctx context.Context, collectionNamespace string, collectionNames []string, scoreNamespace string, scoreCondition ScoreCondition) error {
 	if err := condition.Check(); err != nil {
 		return errors.Trace(err)
 	}

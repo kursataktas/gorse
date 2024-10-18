@@ -94,7 +94,7 @@ func (m *Master) runLoadDatasetTask() error {
 	if err = m.CacheClient.AddScores(ctx, "", cache.PopularItems, "", popularItems.ToSlice()); err != nil {
 		log.Logger().Error("failed to cache popular items", zap.Error(err))
 	}
-	if err = m.CacheClient.DeleteScores(ctx, "", []string{cache.PopularItems}, cache.ScoreCondition{Before: &popularItems.Timestamp}); err != nil {
+	if err = m.CacheClient.DeleteScores(ctx, "", []string{cache.PopularItems}, "", cache.ScoreCondition{Before: &popularItems.Timestamp}); err != nil {
 		log.Logger().Error("failed to reclaim outdated items", zap.Error(err))
 	}
 	if err = m.CacheClient.Set(ctx, cache.Time(cache.Key(cache.GlobalMeta, cache.LastUpdatePopularItemsTime), time.Now())); err != nil {
@@ -105,7 +105,7 @@ func (m *Master) runLoadDatasetTask() error {
 	if err = m.CacheClient.AddScores(ctx, "", cache.LatestItems, "", latestItems.ToSlice()); err != nil {
 		log.Logger().Error("failed to cache latest items", zap.Error(err))
 	}
-	if err = m.CacheClient.DeleteScores(ctx, "", []string{cache.LatestItems}, cache.ScoreCondition{Before: &latestItems.Timestamp}); err != nil {
+	if err = m.CacheClient.DeleteScores(ctx, "", []string{cache.LatestItems}, "", cache.ScoreCondition{Before: &latestItems.Timestamp}); err != nil {
 		log.Logger().Error("failed to reclaim outdated items", zap.Error(err))
 	}
 	if err = m.CacheClient.Set(ctx, cache.Time(cache.Key(cache.GlobalMeta, cache.LastUpdateLatestItemsTime), time.Now())); err != nil {
@@ -400,7 +400,7 @@ func (m *Master) findItemNeighborsBruteForce(dataset *ranking.DataSet, labeledIt
 		if err := m.CacheClient.AddScores(ctx, "", cache.ItemNeighbors, itemId, aggregator.ToSlice()); err != nil {
 			return errors.Trace(err)
 		}
-		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.ItemNeighbors}, cache.ScoreCondition{
+		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.ItemNeighbors}, "", cache.ScoreCondition{
 			Subset: proto.String(itemId),
 			Before: &aggregator.Timestamp,
 		}); err != nil {
@@ -505,7 +505,7 @@ func (m *Master) findItemNeighborsIVF(dataset *ranking.DataSet, labelIDF, userID
 		if err := m.CacheClient.AddScores(ctx, "", cache.ItemNeighbors, itemId, aggregator.ToSlice()); err != nil {
 			return errors.Trace(err)
 		}
-		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.ItemNeighbors}, cache.ScoreCondition{
+		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.ItemNeighbors}, "", cache.ScoreCondition{
 			Subset: proto.String(itemId),
 			Before: &aggregator.Timestamp,
 		}); err != nil {
@@ -719,7 +719,7 @@ func (m *Master) findUserNeighborsBruteForce(ctx context.Context, dataset *ranki
 		if err := m.CacheClient.AddScores(ctx, "", cache.UserNeighbors, userId, aggregator.ToSlice()); err != nil {
 			return errors.Trace(err)
 		}
-		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.UserNeighbors}, cache.ScoreCondition{
+		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.UserNeighbors}, "", cache.ScoreCondition{
 			Subset: proto.String(userId),
 			Before: &aggregator.Timestamp,
 		}); err != nil {
@@ -811,7 +811,7 @@ func (m *Master) findUserNeighborsIVF(ctx context.Context, dataset *ranking.Data
 		if err := m.CacheClient.AddScores(ctx, "", cache.UserNeighbors, userId, aggregator.ToSlice()); err != nil {
 			return errors.Trace(err)
 		}
-		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.UserNeighbors}, cache.ScoreCondition{
+		if err := m.CacheClient.DeleteScores(ctx, "", []string{cache.UserNeighbors}, "", cache.ScoreCondition{
 			Subset: proto.String(userId),
 			Before: &aggregator.Timestamp,
 		}); err != nil {
@@ -1395,7 +1395,7 @@ func (t *CacheGarbageCollectionTask) run(ctx context.Context, j *task.JobsAlloca
 
 // LoadDataFromDatabase loads dataset from data store.
 func (m *Master) LoadDataFromDatabase(ctx context.Context, database data.Database, posFeedbackTypes, readTypes []string, itemTTL, positiveFeedbackTTL uint, evaluator *OnlineEvaluator) (
-	rankingDataset *ranking.DataSet, clickDataset *click.Dataset, latestItems *cache.DocumentAggregator, popularItems *cache.DocumentAggregator, err error) {
+	rankingDataset *ranking.DataSet, clickDataset *click.Dataset, latestItems *cache.ScoresAggregator, popularItems *cache.ScoresAggregator, err error) {
 	newCtx, span := progress.Start(ctx, "LoadDataFromDatabase", 4)
 	defer span.End()
 

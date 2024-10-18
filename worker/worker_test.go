@@ -138,7 +138,7 @@ func (suite *WorkerTestSuite) TestCheckRecommendCacheTimeout() {
 	err = suite.CacheClient.Set(ctx, cache.Time(cache.Key(cache.LastUpdateUserRecommendTime, "0"), time.Now().Add(time.Hour*100)))
 	suite.NoError(err)
 	suite.False(suite.checkRecommendCacheTimeout(ctx, "0", nil))
-	err = suite.CacheClient.DeleteScores(ctx, "", []string{cache.OfflineRecommend}, cache.ScoreCondition{Subset: proto.String("0")})
+	err = suite.CacheClient.DeleteScores(ctx, "", []string{cache.OfflineRecommend}, "", cache.ScoreCondition{Subset: proto.String("0")})
 	suite.NoError(err)
 	suite.True(suite.checkRecommendCacheTimeout(ctx, "0", nil))
 }

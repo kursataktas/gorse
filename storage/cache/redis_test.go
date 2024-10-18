@@ -84,7 +84,7 @@ func (suite *RedisTestSuite) TestEscapeCharacters() {
 			suite.NoError(err)
 			suite.Equal([]Score{{Id: id, Score: 1, Categories: []string{"a", "b"}, Timestamp: ts}}, documents)
 
-			err = suite.DeleteScores(ctx, "", []string{collection}, ScoreCondition{
+			err = suite.DeleteScores(ctx, "", []string{collection}, "", ScoreCondition{
 				Subset: proto.String(subset),
 				Id:     proto.String(id),
 			})

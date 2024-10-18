@@ -864,7 +864,7 @@ func (w *Worker) collaborativeRecommendBruteForce(userId string, itemCategories 
 		log.Logger().Error("failed to cache collaborative filtering recommendation result", zap.String("user_id", userId), zap.Error(err))
 		return nil, 0, errors.Trace(err)
 	}
-	if err := w.CacheClient.DeleteScores(ctx, "", []string{cache.CollaborativeRecommend}, cache.ScoreCondition{Before: &localStartTime}); err != nil {
+	if err := w.CacheClient.DeleteScores(ctx, "", []string{cache.CollaborativeRecommend}, "", cache.ScoreCondition{Before: &localStartTime}); err != nil {
 		log.Logger().Error("failed to delete stale collaborative filtering recommendation result", zap.String("user_id", userId), zap.Error(err))
 		return nil, 0, errors.Trace(err)
 	}
@@ -897,7 +897,7 @@ func (w *Worker) collaborativeRecommendHNSW(rankingIndex *search.HNSW, userId st
 		log.Logger().Error("failed to cache collaborative filtering recommendation result", zap.String("user_id", userId), zap.Error(err))
 		return nil, 0, errors.Trace(err)
 	}
-	if err := w.CacheClient.DeleteScores(ctx, "", []string{cache.CollaborativeRecommend}, cache.ScoreCondition{Before: &localStartTime}); err != nil {
+	if err := w.CacheClient.DeleteScores(ctx, "", []string{cache.CollaborativeRecommend}, "", cache.ScoreCondition{Before: &localStartTime}); err != nil {
 		log.Logger().Error("failed to delete stale collaborative filtering recommendation result", zap.String("user_id", userId), zap.Error(err))
 		return nil, 0, errors.Trace(err)
 	}
@@ -924,7 +924,7 @@ func (w *Worker) rankByCollaborativeFiltering(userId string, candidates [][]stri
 			Score: float64(w.RankingModel.Predict(userId, itemId)),
 		})
 	}
-	cache.SortDocuments(topItems)
+	cache.SortScores(topItems)
 	return topItems, nil
 }
 
@@ -975,7 +975,7 @@ func (w *Worker) rankByClickTroughRate(user *data.User, candidates [][]string, i
 			})
 		}
 	}
-	cache.SortDocuments(topItems)
+	cache.SortScores(topItems)
 	return topItems, nil
 }
 
@@ -1084,7 +1084,7 @@ func (w *Worker) checkUserActiveTime(ctx context.Context, userId string) bool {
 		return true
 	}
 	// remove recommend cache for inactive users
-	if err := w.CacheClient.DeleteScores(ctx, "", []string{cache.OfflineRecommend, cache.CollaborativeRecommend}, cache.ScoreCondition{Subset: proto.String(userId)}); err != nil {
+	if err := w.CacheClient.DeleteScores(ctx, "", []string{cache.OfflineRecommend, cache.CollaborativeRecommend}, "", cache.ScoreCondition{Subset: proto.String(userId)}); err != nil {
 		log.Logger().Error("failed to delete recommend cache", zap.String("user_id", userId), zap.Error(err))
 	}
 	return false
@@ -1289,7 +1289,7 @@ func (w *Worker) replacement(recommend map[string][]cache.Score, user *data.User
 
 	// rank items
 	for _, r := range newRecommend {
-		cache.SortDocuments(r)
+		cache.SortScores(r)
 	}
 	return newRecommend, nil
 }

@@ -1740,7 +1740,7 @@ func (suite *ServerTestSuite) TestVisibility() {
 		JSON(items).
 		Expect(t).
 		Status(http.StatusOK).
-		Body(suite.marshal(cache.ConvertDocumentsToValues(documents[:2]))).
+		Body(suite.marshal(cache.ConvertScoresToStringSlice(documents[:2]))).
 		End()
 
 	// insert item
@@ -1806,7 +1806,7 @@ func (suite *ServerTestSuite) TestVisibility() {
 		JSON(items).
 		Expect(t).
 		Status(http.StatusOK).
-		Body(suite.marshal(cache.ConvertDocumentsToValues(documents))).
+		Body(suite.marshal(cache.ConvertScoresToStringSlice(documents))).
 		End()
 
 	// delete category
@@ -1872,7 +1872,7 @@ func (suite *ServerTestSuite) TestVisibility() {
 		JSON(items).
 		Expect(t).
 		Status(http.StatusOK).
-		Body(suite.marshal(cache.ConvertDocumentsToValues(documents[:2]))).
+		Body(suite.marshal(cache.ConvertScoresToStringSlice(documents[:2]))).
 		End()
 
 	// delete category
@@ -1938,7 +1938,7 @@ func (suite *ServerTestSuite) TestVisibility() {
 		JSON(items).
 		Expect(t).
 		Status(http.StatusOK).
-		Body(suite.marshal(cache.ConvertDocumentsToValues(documents))).
+		Body(suite.marshal(cache.ConvertScoresToStringSlice(documents))).
 		End()
 }
 
